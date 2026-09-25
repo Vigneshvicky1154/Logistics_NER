@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, WebSocket, WebSocketDisconnect
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from database import engine, get_db, Base
@@ -119,7 +120,7 @@ async def create_incident(incident: schemas.IncidentReportCreate, db: Session = 
         # Broadcast update to clients
         await manager.broadcast({
             "type": "NEW_INCIDENT",
-            "data": schemas.IncidentReport.from_orm(db_incident).dict()
+            "data": jsonable_encoder(schemas.IncidentReport.from_orm(db_incident))
         })
         
         # Broadcast the new report alert
